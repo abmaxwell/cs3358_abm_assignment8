@@ -10,9 +10,23 @@ using namespace std;
 // are rehashed (re-inserted) into the new hash table
 // (the old hash table is discarded - memory returned to heap)
 // (HINT: put next_prime and insert to good use)
-void HashTable::rehash()
-{
-   // to be implemented as part of Assignment 8
+void HashTable::rehash(){
+
+   /// Copy invoking hash-table into temporary table.
+   HashTable *old_table = this;
+
+   /// Clear current data from hash-table.
+   capacity = next_prime(2*(old_table->capacity));
+   used = 0;
+   data = new Item[capacity];
+
+   /// Copy items from old table into new table
+   for(size_type index = 0; index < old_table->used; ++index){
+      insert(old_table->data[index].word);
+   }
+
+   /// Free up memory from old table.
+   delete old_table;
 }
 
 // returns true if cStr already exists in the hash table,
