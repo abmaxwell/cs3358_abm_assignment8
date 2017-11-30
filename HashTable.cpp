@@ -45,7 +45,17 @@ bool HashTable::exists(const char* cStr) const
 // CAUTION: major penalty if not using hashing technique
 bool HashTable::search(const char* cStr) const
 {
-   // to be implemented as part of Assignment 8
+   size_type loc0, loc1, i = 0;
+   loc1 = loc0 = hash(cStr);
+   while(i < capacity){
+      if(data[loc1].word != "" && data[loc1].word == cStr){
+         return true;
+      }else{
+         ++i;
+         loc1 = (loc0 + (i * i)) % capacity;
+      }
+   }
+   return false;
 }
 
 // returns load-factor calculated as a fraction
