@@ -10,23 +10,22 @@ using namespace std;
 // are rehashed (re-inserted) into the new hash table
 // (the old hash table is discarded - memory returned to heap)
 // (HINT: put next_prime and insert to good use)
-void HashTable::rehash(){
+void HashTable::rehash() {
 
    /// Copy invoking hash-table into temporary table.
-   HashTable *old_table = this;
+   Item *old_data = data;
+   size_type old_used = used;
 
    /// Clear current data from hash-table.
-   capacity = next_prime(2*(old_table->capacity));
+   capacity = next_prime((2 * capacity));
    used = 0;
    data = new Item[capacity];
 
    /// Copy items from old table into new table
-   for(size_type index = 0; index < old_table->used; ++index){
-      insert(old_table->data[index].word);
+   for (size_type index = 0; index < old_used; ++index) {
+      insert(old_data[index].word);
    }
-
-   /// Free up memory from old table.
-   delete old_table;
+   delete [] old_data;
 }
 
 // returns true if cStr already exists in the hash table,
@@ -49,8 +48,12 @@ bool HashTable::search(const char* cStr) const
    loc1 = loc0 = hash(cStr);
    while(i < capacity){
       if(data[loc1].word != "" && data[loc1].word == cStr){
+         /// As long as bucket is not empty and it matches
+         /// key then return true. Item exists.
          return true;
       }else{
+         /// If above condition is not met then update the
+         /// counter and look in the next quadratic location.
          ++i;
          loc1 = (loc0 + (i * i)) % capacity;
       }
@@ -152,7 +155,26 @@ void HashTable::grading_helper_print(ostream& out) const
 // rehash is called to bring down the load-factor)
 void HashTable::insert(const char* cStr)
 {
-   // to be implemented as part of Assignment 8
+   size_type loc0, loc1, i = 0;
+   loc1 = loc0 = hash(cStr);
+   while(i < capacity){
+      if(data[loc1].word[0] == '\0'){
+         /// Empty location found in the table insert
+         /// new item at this locations.
+         strcpy(data[loc1].word, cStr);
+         ++used;
+         break;
+      }else{
+         /// If above condition is not met then update the
+         /// counter and look in the next quadratic location.
+         ++i;
+         loc1 = (loc0 + (i * i)) % capacity;
+      }
+   }
+   /// Check to load-factor to make sure it's <= 45%
+   if( 0.45 < load_factor()){
+      rehash();
+   }
 }
 
 // adaption of : http://stackoverflow.com/questions/4475996
