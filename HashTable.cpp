@@ -14,16 +14,23 @@ void HashTable::rehash() {
 
    /// Copy invoking hash-table into temporary table.
    Item *old_data = data;
-   size_type old_used = used;
+   size_type old_capacity = capacity;
 
    /// Clear current data from hash-table.
-   capacity = next_prime((2 * capacity));
+   capacity = next_prime(2 * capacity);
    used = 0;
    data = new Item[capacity];
 
+   /// Set all items to empty.
+   for (size_type index = 0; index < capacity; ++index){
+      strcpy(data[index].word, "");
+   }
+
    /// Copy items from old table into new table
-   for (size_type index = 0; index < old_used; ++index) {
-      insert(old_data[index].word);
+   for (size_type index = 0; index < old_capacity; ++index) {
+      if(old_data[index].word[0] != '\0'){
+         insert(old_data[index].word);
+      }
    }
    delete [] old_data;
 }
@@ -45,9 +52,11 @@ bool HashTable::exists(const char* cStr) const
 bool HashTable::search(const char* cStr) const
 {
    size_type loc0, loc1, i = 0;
+
    loc1 = loc0 = hash(cStr);
+
    while(i < capacity){
-      if(data[loc1].word != "" && data[loc1].word == cStr){
+      if(! strcmp(data[loc1].word,cStr)){
          /// As long as bucket is not empty and it matches
          /// key then return true. Item exists.
          return true;
@@ -55,7 +64,7 @@ bool HashTable::search(const char* cStr) const
          /// If above condition is not met then update the
          /// counter and look in the next quadratic location.
          ++i;
-         loc1 = (loc0 + (i * i)) % capacity;
+         loc1 = ((loc0 + (i * i)) % capacity);
       }
    }
    return false;
@@ -63,15 +72,14 @@ bool HashTable::search(const char* cStr) const
 
 // returns load-factor calculated as a fraction
 double HashTable::load_factor() const
-{ return double(used) / capacity; }
+{ return double(used) / capacity;}
 
 // returns hash value computed using the djb2 hash algorithm
 // (2nd page of Lecture Note 324s02AdditionalNotesOnHashFunctions)
-HashTable::size_type HashTable::hash(const char* word) const
-{
+HashTable::size_type HashTable::hash(const char* word) const {
    unsigned long hash = 5381;
    int character;
-   while ((character = *word++)){
+   while ((character = *word++)) {
       hash = ((hash << 5) + hash) + character;
    } // hash * 33 + character
 
@@ -168,11 +176,12 @@ void HashTable::insert(const char* cStr)
          /// If above condition is not met then update the
          /// counter and look in the next quadratic location.
          ++i;
-         loc1 = (loc0 + (i * i)) % capacity;
+         loc1 = ((loc0 + (i * i)) % capacity);
       }
    }
+
    /// Check to load-factor to make sure it's <= 45%
-   if( 0.45 < load_factor()){
+   if(0.45 < load_factor()){
       rehash();
    }
 }
