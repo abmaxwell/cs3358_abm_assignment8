@@ -165,18 +165,20 @@ void HashTable::insert(const char* cStr)
 {
    size_type loc0, loc1, i = 0;
    loc1 = loc0 = hash(cStr);
-   while(i < capacity){
-      if(data[loc1].word[0] == '\0'){
-         /// Empty location found in the table insert
-         /// new item at this locations.
-         strcpy(data[loc1].word, cStr);
-         ++used;
-         break;
-      }else{
-         /// If above condition is not met then update the
-         /// counter and look in the next quadratic location.
-         ++i;
-         loc1 = ((loc0 + (i * i)) % capacity);
+   if(!search(cStr)) { /// Ensure each item in dictionary is unique.
+      while (i < capacity) {
+         if (data[loc1].word[0] == '\0') {
+            /// Empty location found in the table insert
+            /// new item at this locations.
+            strcpy(data[loc1].word, cStr);
+            ++used;
+            break;
+         } else {
+            /// If above condition is not met then update the
+            /// counter and look in the next quadratic location.
+            ++i;
+            loc1 = ((loc0 + (i * i)) % capacity);
+         }
       }
    }
 
